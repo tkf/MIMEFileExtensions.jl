@@ -1,5 +1,6 @@
 module MIMEFileExtensionsTests
 
+using Documenter
 using MIMEFileExtensions
 using Test
 
@@ -17,6 +18,10 @@ end
 function test_mimes_from_fileext()
     @test ("text/plain",) ⊆ MIMEFileExtensions.mimes_from_fileext("txt")
     @test ("image/jpeg",) ⊆ MIMEFileExtensions.mimes_from_fileext("jpg")
+end
+
+function test_doctest()
+    doctest(MIMEFileExtensions; manual = false)
 end
 
 end  # module MIMEFileExtensionsTests

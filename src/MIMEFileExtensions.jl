@@ -115,6 +115,11 @@ function __init__()
     return
 end
 
+@doc let path = joinpath(dirname(@__DIR__), "README.md")
+    include_dependency(path)
+    replace(read(path, String), r"^```julia"m => "```jldoctest README")
+end MIMEFileExtensions
+
 end  # module Internal
 
 end  # baremodule MIMEFileExtensions
