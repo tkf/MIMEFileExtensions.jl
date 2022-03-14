@@ -1,0 +1,11 @@
+name = "MIMEFileExtensionsTests"
+uuid = "d803c80a-76ae-4fd1-8a98-78562abd182a"
+authors = ["Takafumi Arakaki <aka.tkf@gmail.com> and contributors"]
+version = "0.1.0-DEV"
+
+[deps]
+MIMEFileExtensions = "6c52b162-0bf1-470e-b8cf-cc2a85579f89"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+julia = "1.6"
