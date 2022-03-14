@@ -1,7 +1,7 @@
 name = "MIMEFileExtensions"
 uuid = "6c52b162-0bf1-470e-b8cf-cc2a85579f89"
 authors = ["Takafumi Arakaki <aka.tkf@gmail.com> and contributors"]
-version = "0.1.0"
+version = "0.1.1-DEV"
 
 [compat]
 julia = "1.6"
