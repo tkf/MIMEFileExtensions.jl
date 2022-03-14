@@ -12,6 +12,15 @@ function list end
 
 List file extentions `fileexts` known to be used for `mime`.  Return an empty tuple if not
 found.
+
+# Example
+
+```jldoctest
+julia> using MIMEFileExtensions
+
+julia> fileexts_from_mime("image/jpeg")
+("jpeg", "jpg", "jpe")
+```
 """
 fileexts_from_mime
 
@@ -20,6 +29,15 @@ fileexts_from_mime
 
 List MIMEs `mimes` known to be used for file extention `fileext`.  Return an empty tuple if
 not found.
+
+# Example
+
+```jldoctest
+julia> using MIMEFileExtensions
+
+julia> mimes_from_fileext("txt")
+("text/plain",)
+```
 """
 mimes_from_fileext
 
@@ -27,6 +45,15 @@ mimes_from_fileext
     MIMEFileExtensions.list() -> table
 
 Return a `table`` with columns `mime::String` and `fileexts::Tuple{Vararg{String}}`.
+
+# Example
+
+```jldoctest
+julia> using MIMEFileExtensions
+
+julia> only(r.mime => r.fileexts for r in MIMEFileExtensions.list() if r.mime == "image/jpeg")
+"image/jpeg" => ("jpeg", "jpg", "jpe")
+```
 """
 list
 
