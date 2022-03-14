@@ -83,7 +83,9 @@ const FILEEXTS_FROM_MIME = Dict{String,Strs}()
 const MIMES_FROM_FILEEXT = Dict{String,Strs}()
 
 function index_fileexts_from_mime!(dict = empty!(FILEEXTS_FROM_MIME), table = TABLE)
-    for (; mime, fileexts) in table
+    for row in table
+        mime = row.mime
+        fileexts = row.fileexts
         isempty(fileexts) && continue
         dict[mime] = fileexts
     end
@@ -91,7 +93,9 @@ function index_fileexts_from_mime!(dict = empty!(FILEEXTS_FROM_MIME), table = TA
 end
 
 function index_mimes_from_fileext!(dict = empty!(MIMES_FROM_FILEEXT), table = TABLE)
-    for (; mime, fileexts) in table
+    for row in table
+        mime = row.mime
+        fileexts = row.fileexts
         for ext in fileexts
             dict[ext] = (get(dict, ext, ())..., mime)
         end
