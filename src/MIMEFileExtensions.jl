@@ -8,7 +8,7 @@ function mimes_from_fileext end
 function list end
 
 """
-    fileexts_from_mime(mime::AbstractString) -> fileexts::Tuple{Vararg{String}}
+    fileexts_from_mime(mime::Union{Symbol,AbstractString,MIME}) -> fileexts::Vector{Symbol}
 
 List file extentions `fileexts` known to be used for `mime`.  Return an empty tuple if not
 found.
@@ -19,13 +19,20 @@ found.
 julia> using MIMEFileExtensions
 
 julia> fileexts_from_mime("image/jpeg")
-("jpeg", "jpg", "jpe")
+3-element Vector{Symbol}:
+ :jpeg
+ :jpg
+ :jpe
+
+julia> fileexts_from_mime(MIME"image/png"())
+1-element Vector{Symbol}:
+ :png
 ```
 """
 fileexts_from_mime
 
 """
-    mimes_from_fileext(fileext::AbstractString) -> mimes::Tuple{Vararg{String}}
+    mimes_from_fileext(fileext::Union{Symbol,AbstractString}) -> mimes::Vector{Symbol}
 
 List MIMEs `mimes` known to be used for file extention `fileext`.  Return an empty tuple if
 not found.
@@ -36,7 +43,8 @@ not found.
 julia> using MIMEFileExtensions
 
 julia> mimes_from_fileext("txt")
-("text/plain",)
+1-element Vector{Symbol}:
+ Symbol("text/plain")
 ```
 """
 mimes_from_fileext
@@ -44,15 +52,18 @@ mimes_from_fileext
 """
     MIMEFileExtensions.list() -> table
 
-Return a `table`` with columns `mime::String` and `fileexts::Tuple{Vararg{String}}`.
+Return a `table`` with columns `mime::Symbol` and `fileexts::Vector{Symbol}`.
 
 # Example
 
 ```jldoctest
 julia> using MIMEFileExtensions
 
-julia> only(r.mime => r.fileexts for r in MIMEFileExtensions.list() if r.mime == "image/jpeg")
-"image/jpeg" => ("jpeg", "jpg", "jpe")
+julia> only(
+           r.mime => r.fileexts for r in MIMEFileExtensions.list()
+           if r.mime == Symbol("image/jpeg")
+       )
+Symbol("image/jpeg") => [:jpeg, :jpg, :jpe]
 ```
 """
 list
@@ -61,8 +72,8 @@ module Internal
 
 using ..MIMEFileExtensions: MIMEFileExtensions
 
-const Strs = Tuple{Vararg{String}}
-const Row = NamedTuple{(:mime, :fileexts),Tuple{String,Strs}}
+const Syms = Vector{Symbol}
+const Row = NamedTuple{(:mime, :fileexts),Tuple{Symbol,Syms}}
 const TABLE = Row[]
 
 row(mime, fileexts) = Row((mime, fileexts))
@@ -99,7 +110,9 @@ function load!(table = empty!(TABLE))
             ln,
         )
         if m !== nothing
-            r = row(m["mime"], Tuple(split(something(m["ext"], ""))))
+            mime = Symbol(m["mime"])
+            fileexts = map(Symbol, split(something(m["ext"], "")))
+            r = row(mime, fileexts)
             push!(table, r)
         else
             error("invalid table row: ", ln)
@@ -108,8 +121,8 @@ function load!(table = empty!(TABLE))
     return table
 end
 
-const FILEEXTS_FROM_MIME = Dict{String,Strs}()
-const MIMES_FROM_FILEEXT = Dict{String,Strs}()
+const FILEEXTS_FROM_MIME = Dict{Symbol,Syms}()
+const MIMES_FROM_FILEEXT = Dict{Symbol,Syms}()
 
 function index_fileexts_from_mime!(dict = empty!(FILEEXTS_FROM_MIME), table = TABLE)
     for row in table
@@ -126,7 +139,7 @@ function index_mimes_from_fileext!(dict = empty!(MIMES_FROM_FILEEXT), table = TA
         mime = row.mime
         fileexts = row.fileexts
         for ext in fileexts
-            dict[ext] = (get(dict, ext, ())..., mime)
+            push!(get!(() -> Symbol[], dict, ext), mime)
         end
     end
     return dict
@@ -134,8 +147,17 @@ end
 
 # TODO: thread-safe lazy loading?
 MIMEFileExtensions.list() = TABLE
-MIMEFileExtensions.fileexts_from_mime(mime) = get(FILEEXTS_FROM_MIME, mime, ())
-MIMEFileExtensions.mimes_from_fileext(ext) = get(MIMES_FROM_FILEEXT, ext, ())
+
+MIMEFileExtensions.fileexts_from_mime(mime::Symbol) =
+    get(FILEEXTS_FROM_MIME, mime, Symbol[])
+MIMEFileExtensions.fileexts_from_mime(mime::AbstractString) =
+    MIMEFileExtensions.fileexts_from_mime(Symbol(mime))
+MIMEFileExtensions.fileexts_from_mime(@nospecialize(mime::MIME)) =
+    MIMEFileExtensions.fileexts_from_mime(Symbol(mime))
+
+MIMEFileExtensions.mimes_from_fileext(ext::Symbol) = get(MIMES_FROM_FILEEXT, ext, Symbol[])
+MIMEFileExtensions.mimes_from_fileext(ext::AbstractString) =
+    MIMEFileExtensions.mimes_from_fileext(Symbol(ext))
 
 # Bundle `TABLE` in precompile cache for sysimage-compatibility:
 load!()

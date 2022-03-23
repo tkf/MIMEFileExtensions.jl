@@ -11,10 +11,14 @@ https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
 julia> using MIMEFileExtensions
 
 julia> fileexts_from_mime("image/jpeg")
-("jpeg", "jpg", "jpe")
+3-element Vector{Symbol}:
+ :jpeg
+ :jpg
+ :jpe
 
 julia> mimes_from_fileext("txt")
-("text/plain",)
+1-element Vector{Symbol}:
+ Symbol("text/plain")
 ```
 
 ## See also
