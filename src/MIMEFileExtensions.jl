@@ -67,8 +67,10 @@ const TABLE = Row[]
 
 row(mime, fileexts) = Row((mime, fileexts))
 
+datapath() = joinpath(@__DIR__, "../data/mime.types")
+
 function load!(table = empty!(TABLE))
-    lines = readlines(joinpath(@__DIR__, "../data/mime.types"))
+    lines = readlines(datapath())
     headerline = nothing
     for i in eachindex(lines)
         if startswith(lines[i], "# MIME type (lowercased)")
@@ -135,8 +137,11 @@ MIMEFileExtensions.list() = TABLE
 MIMEFileExtensions.fileexts_from_mime(mime) = get(FILEEXTS_FROM_MIME, mime, ())
 MIMEFileExtensions.mimes_from_fileext(ext) = get(MIMES_FROM_FILEEXT, ext, ())
 
+# Bundle `TABLE` in precompile cache for sysimage-compatibility:
+load!()
+include_dependency(datapath())
+
 function __init__()
-    load!()
     index_fileexts_from_mime!()
     index_mimes_from_fileext!()
     return
