@@ -16,3 +16,10 @@ julia> fileexts_from_mime("image/jpeg")
 julia> mimes_from_fileext("txt")
 ("text/plain",)
 ```
+
+## See also
+
+* https://github.com/fonsp/MIMEs.jl: Similar package that is based on a more comprehensive
+  database.
+* https://github.com/JuliaIO/FileType.jl: File type (including MIME) detection based also on
+  the file content.
